@@ -1,0 +1,286 @@
+# 1. Реализовать класс «Дата», функция-конструктор которого должна принимать дату в виде строки формата «день-месяц-год».
+# В рамках класса реализовать два метода. Первый, с декоратором @classmethod. Он должен извлекать число, месяц, год и преобразовывать их тип к типу «Число».
+# Второй, с декоратором @staticmethod, должен проводить валидацию числа, месяца и года (например, месяц — от 1 до 12).
+# Проверить работу полученной структуры на реальных данных.
+
+class Date:
+    def __init__(self, day=0, month=0, year=0):
+        self.day = day
+        self.month = month
+        self.year = year
+
+    @classmethod
+    def for_str(cls, date_str):
+        day, month, year = map(int, date_str.split('-'))
+        date_new = cls(day, month, year)
+        print(cls, date_str)
+        return date_new
+
+    @staticmethod
+    def date_valid(date_str):
+        day, month, year = map(int, date_str.split('-'))
+        if day <= 31 and day != 0 and month <= 12 and month != 0 and year <= 2022 and year != 0:
+            print(date_str)
+            return day, month, year
+        else:
+            print('Ошибка ввода данных')
+
+
+d = '12-08-2022'
+date2 = Date.for_str(d)
+is_date = Date.date_valid(d)
+
+# 2. Создайте собственный класс-исключение, обрабатывающий ситуацию деления на ноль.
+# Проверьте его работу на данных, вводимых пользователем.
+# При вводе нуля в качестве делителя программа должна корректно обработать эту ситуацию и не завершиться с ошибкой.
+
+class MyError(Exception):
+    def __init__(self, txt):
+        self.txt = txt
+
+def division ():
+    try:
+        inp_divisible = int(input("Введите делимое: "))
+        inp_divider = int(input("Введите делитель: "))
+        if inp_divider == 0:
+            raise MyError("Делить на ноль нельзя!")
+        else:
+            res_division = inp_divisible/inp_divider
+        return res_division
+    except ValueError:
+        print("Вы ввели не число")
+    except MyError as err:
+        print(err)
+
+print (division())
+
+
+
+# 3. Создайте собственный класс-исключение, который должен проверять содержимое списка на наличие только чисел.
+# Проверить работу исключения на реальном примере. Запрашивать у пользователя данные и заполнять список необходимо только числами.
+# Класс-исключение должен контролировать типы данных элементов списка.
+# Примечание: длина списка не фиксирована. Элементы запрашиваются бесконечно, пока пользователь сам не остановит работу скрипта, введя, например, команду «stop».
+# При этом скрипт завершается, сформированный список с числами выводится на экран.
+# Подсказка: для этого задания примем, что пользователь может вводить только числа и строки. Во время ввода пользователем очередного элемента необходимо реализовать проверку типа элемента.
+# Вносить его в список, только если введено число.
+# Класс-исключение должен не позволить пользователю ввести текст (не число) и отобразить соответствующее сообщение.
+# При этом работа скрипта не должна завершаться.
+
+class MyError(Exception):
+    pass
+
+my_list = []
+while True:
+    try:
+        value = input('Введите число:')
+        if value == 'stop':
+            break
+        if not value.isdigit():
+            raise MyError(value)
+        my_list.append(int(value))
+    except MyError as ex:
+        print('Не число!', ex)
+print(my_list)
+
+# 4 Начните работу над проектом «Склад оргтехники». Создайте класс, описывающий склад.
+# А также класс «Оргтехника», который будет базовым для классов-наследников.
+# Эти классы — конкретные типы оргтехники (принтер, сканер, ксерокс).
+# В базовом классе определите параметры, общие для приведённых типов.
+# В классах-наследниках реализуйте параметры, уникальные для каждого типа оргтехники.
+
+# 5. Продолжить работу над первым заданием.
+# Разработайте методы, которые отвечают за приём оргтехники на склад и передачу в определённое подразделение компании.
+# Для хранения данных о наименовании и количестве единиц оргтехники, а также других данных,
+# можно использовать любую подходящую структуру (например, словарь).
+
+class Warehouse:
+    def __init__(self):
+        self._dict = {}
+
+    def add_to(self, equipment):
+        self._dict.setdefault(equipment.group_name(), []).append(equipment)
+
+
+class Office_Equipment:
+    def __init__(self, provider, colour,model):
+        self.provider = provider
+        self.colour = colour
+        self.model = model
+        self.group = self.__class__.__name__
+
+    def group_name(self):
+        return f'{self.group}'
+
+    def __repr__(self):
+        return f'{self.provider} {self.colour} {self.model}'
+
+class Printer(Office_Equipment):
+    amount_pr = 0
+
+    def __init__(self, provider, colour,model, pr_type):
+        super().__init__(provider, colour,model)
+        self.pr_type = pr_type
+        Printer.amount_pr += 1
+
+    def action(self):
+        return 'Печатает'
+    @staticmethod
+    def name():
+        return "Принтер"
+    def type_printer(self):
+        return self.pr_type
+
+    def __str__(self):
+        return "\tПоставщик: {} \tцвет: {}  \tмодель устройства: \tтип принтера: {}".format(self.provider, self.colour,self.model, self.pr_type)
+
+class Scanner(Office_Equipment):
+    amount_sc = 0
+
+    def __init__(self, provider, colour,model, type_read):
+        super().__init__(provider, colour,model)
+        self.type_read = type_read
+        Scanner.amount_sc += 1
+    @staticmethod
+    def name():
+        return "Сканер"
+    def type_read_sc(self):
+        return self.type_read
+
+    def __str__(self):
+        return "\tПоставщик: {} \tцвет: {} \tмодель: {} \tтип считывания: {}".format(self.provider, self.colour,self.model, self.type_read)
+
+
+class Xerox (Office_Equipment):
+    amount_x = 0
+
+    def __init__(self, provider, colour,model, xer_wi_fi):
+        super().__init__(provider, colour,model)
+        self.xer_wi_fi = xer_wi_fi
+        Xerox.amount_x += 1
+
+    @staticmethod
+    def name():
+        return "Ксерокс"
+    def wi_fi_module(self):
+        return self.xer_wi_fi
+
+    def __str__(self):
+        return "\tПоставщик: {} \tцвет: {} \tмодель: {}  \tналичие Wi-Fi модуля: {}".format(self.provider, self.colour,self.model, self.xer_wi_fi)
+
+Warehouse = Warehouse()
+p = Printer('Canon', 'черный','LBP6030B','лазерный')
+Warehouse.add_to(p)
+p2 = Printer('Brother', 'белый', 'DCP-L2500DR','струйный')
+Warehouse.add_to(p2)
+print(p.name(), p.amount_pr, "шт")
+print(p.__str__())
+print(p2.__str__())
+
+s = Scanner('Epson', 'серый', 'v30','светодиодный')
+Warehouse.add_to(s)
+s2 = Scanner('Avision', 'белый', 'ad280','лазерный')
+Warehouse.add_to(s2)
+s3 = Scanner('Kodak', 'черный', 'i24','светодиодный')
+Warehouse.add_to(s3)
+print(s.name(), s.amount_sc, "шт")
+print(s.__str__())
+print(s2.__str__())
+print(s3.__str__())
+
+x = Xerox('Hanp', 'черный', '6180','нет')
+Warehouse.add_to(x)
+x2 = Xerox('Phaser', 'белый', '3140', 'есть')
+Warehouse.add_to(x2)
+x3 = Xerox('Xerox', 'серый',"106R01374", 'нет')
+Warehouse.add_to(x3)
+x4 = Xerox('Pantum', 'красный','2560', 'есть')
+Warehouse.add_to(x4)
+print(x.name(), x.amount_x, "шт")
+print(x.__str__())
+print(x2.__str__())
+print(x3.__str__())
+print(x4.__str__())
+print(Warehouse._dict)
+
+# 6. Продолжить работу над вторым заданием.
+# Реализуйте механизм валидации вводимых пользователем данных.
+# Например, для указания количества принтеров, отправленных на склад, нельзя использовать строковый тип данных.
+# Подсказка: постарайтесь реализовать в проекте «Склад оргтехники» максимум возможностей, изученных на уроках по ООП
+
+class Office_Equipment:
+
+    def __init__(self, name, price, quantity, number_of_lists, *args):
+        self.name = name
+        self.price = price
+        self.quantity = quantity
+        self.numb = number_of_lists
+        self.my_store_full = []
+        self.my_store = []
+        self.my_unit = {'Модель устройства': self.name, 'Цена за ед': self.price, 'Количество': self.quantity}
+
+    def __str__(self):
+        return f'{self.name} цена {self.price} количество {self.quantity}'
+
+    def reception(self):
+        try:
+            unit = input(f'Введите наименование ')
+            unit_p = int(input(f'Введите цену за ед '))
+            unit_q = int(input(f'Введите количество '))
+            unique = {'Модель устройства': unit, 'Цена за ед': unit_p, 'Количество': unit_q}
+            self.my_unit.update(unique)
+            self.my_store.append(self.my_unit)
+            print(f'Текущий список -\n {self.my_store}')
+        except:
+            return f'Ошибка ввода данных'
+
+        print(f'Для выхода - Q, продолжение - Enter')
+        q = input(f'---> ')
+        if q == 'Q' or q == 'q':
+            self.my_store_full.append(self.my_store)
+            print(f'Весь склад -\n {self.my_store_full}')
+            return f'Выход'
+        else:
+            return Office_Equipment.reception(self)
+
+class Printer(Office_Equipment):
+    def to_print(self):
+        return f'to print smth {self.numb} times'
+
+class Scanner(Office_Equipment):
+    def to_scan(self):
+        return f'to scan smth {self.numb} times'
+
+
+class Xerox(Office_Equipment):
+    def to_copier(self):
+        return f'to copier smth  {self.numb} times'
+
+unit_1 = Printer('Canon', 2000, 5, 10)
+unit_2 = Scanner('Brother', 1200, 5, 10)
+unit_3 = Xerox('Phaser', 1500, 1, 15)
+print(unit_1.reception())
+print(unit_2.reception())
+print(unit_3.reception())
+print(unit_1.to_print())
+print(unit_3.to_copier())
+
+# 7. Реализовать проект «Операции с комплексными числами».
+# Создайте класс «Комплексное число».
+# Реализуйте перегрузку методов сложения и умножения комплексных чисел.
+# Проверьте работу проекта.
+# Для этого создаёте экземпляры класса (комплексные числа), выполните сложение и умножение созданных экземпляров.
+# Проверьте корректность полученного результата.
+
+class ComplexNumber:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+    def __add__(self,other):
+        return f'Сумма комплексных чисел равна:{self.a+other.a}+{self.b+other.b}*i'
+    def __mul__(self,other):
+        return f'Произведение комплексных чисел равно: {self.a*other.a-(self.b*other.b)}+{(self.b*other.a)+(self.a*other.b)}*i'
+
+num1 = ComplexNumber(1,2)
+num2 = ComplexNumber(2,4)
+print(num1+num2)
+print(num1*num2)
